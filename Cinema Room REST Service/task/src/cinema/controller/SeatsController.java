@@ -5,6 +5,7 @@ import cinema.model.Seat;
 import cinema.model.Token;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class SeatsController {
 
     int total_row = 9;
     int total_column = 9;
-    CinemaRoom room = new CinemaRoom(total_row, total_column, seats);
+    CinemaRoom room = new CinemaRoom(total_row, total_column, seats,tokens);
 
     @GetMapping("/seats")
     public CinemaRoom getSeats() {
@@ -52,7 +53,7 @@ public class SeatsController {
                     s.setAvailable(false); //set it bought
                     seat = s;
                     Token t = new Token(s);
-                    tokens.add(t);
+                    room.getTokens().add(t);
                     return t;
                 } else if (s.equals(seat) && !s.isAvailable()) {
                     //set is taken
@@ -79,11 +80,32 @@ public class SeatsController {
                 //taken exists
                 map.put("returned_ticket", t.getTicket());
                 tokens.remove(t);
+                for(Seat s: room.getAvailableSeats()){
+                    if(s.equals(t.getTicket())){
+                        s.setAvailable(true);
+                        break;
+                    }
+                }
                 return map;
             }
         }
         HashMap<String, String> error = new HashMap<>();
         error.put("error", "Wrong token!");
         return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
+    }
+    @PostMapping("/stats")
+    public Object getStatistics(@RequestParam(value = "password", required = false) String password){
+        if(password !=null && !password.isEmpty() && password.equals("super_secret")) {
+            HashMap<String, Integer> stats = new HashMap<>();
+            stats.put("current_income", room.getIncome());
+            stats.put("number_of_available_seats", room.notSoldSeats().size());
+            stats.put("number_of_purchased_tickets", room.ticketsPurchased());
+            return stats;
+        }
+        else{
+            HashMap<String, String> error = new HashMap<>();
+            error.put("error", "The password is wrong!");
+            return new ResponseEntity(error,HttpStatus.UNAUTHORIZED);
+        }
     }
 }
