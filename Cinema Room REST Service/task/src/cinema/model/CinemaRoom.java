@@ -12,13 +12,13 @@ public class CinemaRoom {
         this.totalRows = totalRow;
         this.totalColumns = totalColumn;
         this.availableSeats =availableSeats;
-        setAvailableSeats();
+        //setAvailableSeats();
     }
 
     public CinemaRoom(int totalRow, int totalColumn) {
         this.totalRows = totalRow;
         this.totalColumns = totalColumn;
-        setAvailableSeats();
+        //setAvailableSeats();
     }
 
     public CinemaRoom() {
@@ -45,21 +45,33 @@ public class CinemaRoom {
     }
 
     public void setAvailableSeats(List<Seat> availableSeats) {
-        availableSeats.clear();
+       /* availableSeats.clear();
         for(int row=1; row<=9; row++){
             for(int col=1; col<=9; col++){
-                availableSeats.add(new Seat(row,col));
+                if(row <=4){
+                    availableSeats.add(new Seat(row,col,10));
+                }
+                else
+                {
+                    availableSeats.add(new Seat(row,col,8));
+                }
             }
-        }
+        }*/
         this.availableSeats = availableSeats;
     }
-    public void setAvailableSeats() {
+   /* public void setAvailableSeats() {
         for(int row=1; row<=9; row++){
             for(int col=1; col<=9; col++){
-                availableSeats.add(new Seat(row,col));
+                if(row <=4){
+                    availableSeats.add(new Seat(row,col,10));
+                }
+                else
+                {
+                    availableSeats.add(new Seat(row,col,8));
+                }
             }
         }
-    }
+    }*/
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
