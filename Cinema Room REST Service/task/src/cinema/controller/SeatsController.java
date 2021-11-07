@@ -2,6 +2,7 @@ package cinema.controller;
 
 import cinema.model.CinemaRoom;
 import cinema.model.Seat;
+import cinema.model.Token;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,12 +14,15 @@ import java.util.List;
 @RestController
 public class SeatsController {
     static List<Seat> seats = new ArrayList<>();
+    static List<Token> tokens = new ArrayList<>();
 
     static {
+        Seat s;
         for (int row = 1; row <= 9; row++) {
             for (int col = 1; col <= 9; col++) {
                 if (row <= 4) {
-                    seats.add(new Seat(row, col, 10));
+                    s = new Seat(row, col, 10);
+                    seats.add(s);
                 } else {
                     seats.add(new Seat(row, col, 8));
                 }
@@ -47,7 +51,9 @@ public class SeatsController {
                 if (s.equals(seat) && s.isAvailable()) {
                     s.setAvailable(false); //set it bought
                     seat = s;
-                    return s;
+                    Token t = new Token(s);
+                    tokens.add(t);
+                    return t;
                 } else if (s.equals(seat) && !s.isAvailable()) {
                     //set is taken
                     msg.clear();
@@ -63,5 +69,21 @@ public class SeatsController {
         return new ResponseEntity(msg, HttpStatus.BAD_REQUEST);
 
 
+    }
+
+    @PostMapping("/return")
+    public Object returnTicket(@RequestBody Token token) {
+        HashMap<String, Seat> map = new HashMap<>();
+        for (Token t : tokens) {
+            if (t.getToken().equals(token.getToken())) {
+                //taken exists
+                map.put("returned_ticket", t.getTicket());
+                tokens.remove(t);
+                return map;
+            }
+        }
+        HashMap<String, String> error = new HashMap<>();
+        error.put("error", "Wrong token!");
+        return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
     }
 }
